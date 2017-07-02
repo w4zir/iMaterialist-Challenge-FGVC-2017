@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/khan/git_repos/iMaterialist-Challenge-FGVC-2017/models/imat.tflearn"
+all_model_checkpoint_paths: "/home/khan/git_repos/iMaterialist-Challenge-FGVC-2017/models/imat.tflearn"
