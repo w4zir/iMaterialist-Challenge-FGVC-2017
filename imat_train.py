@@ -24,14 +24,18 @@ data_dir = '/home/khan/workspace/ml_ws/datasets/imat_dataset/'
 model_path = "model/"
 
 # load data
-# train_X = np.load('data/train_X-100-100-3.npy')
-# train_X = train_X.astype(np.float64)
+train_X = np.load('data/train_X-100-100-3.npy')
+train_X = train_X.astype(np.float64)
+train_Y = np.load('data/train_Y.npy')
+
 val_X = np.load('data/val_X-100-100-3.npy')
 val_X = val_X.astype(np.float64)
+val_Y = np.load('data/val_Y.npy')
+
 # test_X = np.load('data/test_X-100-100-3.npy')
 # test_X = test_X.astype(np.float64)
-# train_Y = np.load('data/train_Y.npy')
-val_Y = np.load('data/val_Y.npy')
+
+
 # val_Y = val_Y[:,0:2]
 
 CLASS_COUNT = val_Y.shape[1]
@@ -49,21 +53,21 @@ img_aug.add_random_rotation(max_angle=25.)
 img_aug.add_random_blur(sigma_max=5.0)
 
 # Convolutional network building
-# network = input_data(shape=[None, 100, 100, 3],
-#                         data_preprocessing=img_prep,
-#                         data_augmentation=img_aug)
+network = input_data(shape=[None, 100, 100, 3],
+                        data_preprocessing=img_prep,
+                        data_augmentation=img_aug)
 
-network = input_data(shape=[None, 100, 100, 3])
+# network = input_data(shape=[None, 100, 100, 3])
 
-network = conv_2d(network, 64, 3, activation='relu')
+network = conv_2d(network, 64, 3, activation='relu', regularizer="L2")
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 32, 3, activation='relu')
+network = conv_2d(network, 32, 3, activation='relu', regularizer="L2")
 network = max_pool_2d(network, 2)
-network = conv_2d(network, 32, 3, activation='relu')
+network = conv_2d(network, 32, 3, activation='relu', regularizer="L2")
 network = max_pool_2d(network, 2)
-network = fully_connected(network, 256, activation='relu')
+network = fully_connected(network, 256, activation='relu', regularizer="L2")
 network = dropout(network, 0.5)
-network = fully_connected(network, 256, activation='relu')
+network = fully_connected(network, 256, activation='relu', regularizer="L2")
 network = dropout(network, 0.5)
 network = fully_connected(network, CLASS_COUNT, activation='softmax')
 network = regression(network, optimizer='adam',
@@ -77,8 +81,8 @@ model = tflearn.DNN(network, tensorboard_verbose=0)
 # model.load('models/driver.tflearn')
 
 # Start finetuning
-model.fit(val_X, val_Y, n_epoch=10, validation_set=0.1, shuffle=True,
-          show_metric=True, batch_size=64, snapshot_epoch=False,
-          snapshot_step=50, run_id='imat_challenge')
+model.fit(train_X, train_Y, n_epoch=100, validation_set=(val_X,val_Y), shuffle=True,
+          show_metric=True, batch_size=64, snapshot_epoch=True,
+          snapshot_step=500, run_id='imat_challenge')
 
 model.save('models/imat.tflearn')
