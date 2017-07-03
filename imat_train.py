@@ -28,9 +28,9 @@ train_X = np.load('data/train_X-100-100-3.npy')
 train_X = train_X.astype(np.float64)
 train_Y = np.load('data/train_Y.npy')
 
-val_X = np.load('data/val_X-100-100-3.npy')
-val_X = val_X.astype(np.float64)
-val_Y = np.load('data/val_Y.npy')
+# val_X = np.load('data/val_X-100-100-3.npy')
+# val_X = val_X.astype(np.float64)
+# val_Y = np.load('data/val_Y.npy')
 
 # test_X = np.load('data/test_X-100-100-3.npy')
 # test_X = test_X.astype(np.float64)
@@ -38,7 +38,7 @@ val_Y = np.load('data/val_Y.npy')
 
 # val_Y = val_Y[:,0:2]
 
-CLASS_COUNT = val_Y.shape[1]
+CLASS_COUNT = train_Y.shape[1]
 print('CLASS_COUNT:\t',CLASS_COUNT)
 
 # Real-time data preprocessing
@@ -72,7 +72,7 @@ network = dropout(network, 0.5)
 network = fully_connected(network, CLASS_COUNT, activation='softmax')
 network = regression(network, optimizer='adam',
                         loss='categorical_crossentropy',
-                        learning_rate=0.001)
+                        learning_rate=0.01)
 
 # Define model object
 model = tflearn.DNN(network, tensorboard_verbose=0)
@@ -81,7 +81,7 @@ model = tflearn.DNN(network, tensorboard_verbose=0)
 # model.load('models/driver.tflearn')
 
 # Start finetuning
-model.fit(train_X, train_Y, n_epoch=100, validation_set=(val_X,val_Y), shuffle=True,
+model.fit(train_X, train_Y, n_epoch=10, validation_set=0.1, shuffle=True,
           show_metric=True, batch_size=64, snapshot_epoch=True,
           snapshot_step=500, run_id='imat_challenge')
 
